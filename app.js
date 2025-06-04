@@ -59,9 +59,8 @@ store.on("error",()=>{
 });
 const sessionOptions = {
     secret: process.env.SECRET,
-    store,
     resave: false,
-    saveUnitialized: true,
+    saveUninitialized: true,
     cookie:{
         expires: Date.now() + 7*24*60*60*1000,
         maxAge: 7*24*60*60*1000,
@@ -83,7 +82,7 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req, res, next)=>{
 res.locals.success = req.flash("success");
 res.locals.error = req.flash("error");
-res.locals.currUser = req.user;
+res.locals.currUser = req.user || null;
 next();
 });
 
@@ -99,7 +98,9 @@ next();
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
-
+app.get("/", (req, res) => {
+  res.redirect("/listings"); // or render a home.ejs if you prefer
+});
 app.all("*",(req, res, next)=>{
     next(new ExpressError(404,"Page Not Found!"));
 });
